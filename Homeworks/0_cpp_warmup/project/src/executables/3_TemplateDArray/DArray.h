@@ -12,8 +12,6 @@ class DArray
 
     void Print() const; // print the elements of the array
 
-    void Reserve(int nSize); // allocate enough memory
-
     int GetSize() const;     // get the size of the array
     void SetSize(int nSize); // set the size of the array
 
@@ -35,8 +33,9 @@ class DArray
     int m_nMax;
 
   private:
-    void Init(); // initilize the array
-    void Free(); // free the array
+    void Init();             // initilize the array
+    void Free();             // free the array
+    void Reserve(int nSize); // allocate enough memory
 };
 
 #include "DArray.inl"
