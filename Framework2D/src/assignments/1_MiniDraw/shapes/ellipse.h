@@ -4,18 +4,19 @@
 
 namespace USTC_CG
 {
-class Line : public Shape
+class Ellipse : public Shape
 {
    public:
-    Line() = default;
+    Ellipse() = default;
 
     // Constructor to initialize a line with start and end coordinates
-    Line(
+    Ellipse(
         float start_point_x,
         float start_point_y,
         float end_point_x,
         float end_point_y,
         const unsigned char line_color[4],
+        const unsigned char fill_color[4],
         float thickness)
         : start_point_x_(start_point_x),
           start_point_y_(start_point_y),
@@ -23,10 +24,11 @@ class Line : public Shape
           end_point_y_(end_point_y)
     {
         set_color(line_color_, line_color);
+        set_color(fill_color_, fill_color);
         line_thickness_ = thickness;
     }
 
-    virtual ~Line() = default;
+    virtual ~Ellipse() = default;
 
     // Overrides draw function to implement line-specific drawing logic
     void draw(const Config& config) const override;

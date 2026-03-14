@@ -2,6 +2,7 @@ build/
 bin/
 libs/
 .vscode
+.cache
 imgui.ini
 .DS_Store
 .vs

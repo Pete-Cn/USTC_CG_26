@@ -1,5 +1,18 @@
 compilation_database_dir: ./build
 output_directory: diagrams
+add_compile_flags:
+  - -xc++
+  - -std=gnu++20
+  - -D__MINGW32__
+  - -D__MINGW64__
+  - -D_WIN64
+  - -D__x86_64__
+  - --target=x86_64-w64-windows-gnu
+  - -IC:/msys64/ucrt64/lib/gcc/x86_64-w64-mingw32/15.2.0/include
+  - -IC:/msys64/ucrt64/include/c++/15.2.0
+  - -IC:/msys64/ucrt64/include/c++/15.2.0/x86_64-w64-mingw32
+  - -IC:/msys64/ucrt64/include
+  - -IC:/msys64/ucrt64/x86_64-w64-mingw32/include
 diagrams:
   1_MiniDraw:
     type: class

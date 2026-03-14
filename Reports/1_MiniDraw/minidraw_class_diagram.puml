@@ -1,0 +1,184 @@
+@startuml MiniDraw_Class_Diagram
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FFFFFF
+skinparam class {
+    BackgroundColor #E8F5E9
+    ArrowColor #2E7D32
+    BorderColor #2E7D32
+}
+
+abstract class Window {
+    # name_ : string
+    # window_ : GLFWwindow*
+    # width_ : int
+    # height_ : int
+    __
+    + Window(window_name : string)
+    + init() : bool
+    + run() : void
+    # draw() : void
+    # init_glfw() : bool
+    # init_gui() : bool
+    # render() : void
+}
+
+abstract class Widget {
+    # label_ : string
+    __
+    + Widget(label : string)
+    + draw() : void {abstract}
+}
+
+class MiniDraw {
+    - p_canvas_ : shared_ptr<Canvas>
+    - flag_show_canvas_view_ : bool
+    __
+    + MiniDraw(window_name : string)
+    + draw() : void
+    - draw_canvas() : void
+}
+
+class Canvas {
+    - canvas_min_ : ImVec2
+    - canvas_max_ : ImVec2
+    - canvas_size_ : ImVec2
+    - draw_status_ : bool
+    - shape_type_ : ShapeType
+    - start_point_ : ImVec2
+    - end_point_ : ImVec2
+    - current_shape_ : shared_ptr<Shape>
+    - shape_list_ : vector<shared_ptr<Shape>>
+    - is_hovered_ : bool
+    - is_active_ : bool
+    __
+    + draw() : void
+    + set_default() : void
+    + set_line() : void
+    + set_rect() : void
+    + set_ellipse() : void
+    + set_polygon() : void
+    + set_freehand() : void
+    + clear_shape_list() : void
+    + set_attributes(min, size : ImVec2) : void
+    - draw_background() : void
+    - draw_shapes() : void
+    - mouse_click_event() : void
+    - mouse_right_click_event() : void
+    - mouse_move_event() : void
+    - mouse_release_event() : void
+    - mouse_pos_in_canvas() : ImVec2
+}
+
+enum ShapeType {
+    kDefault
+    kLine
+    kRect
+    kEllipse
+    kPolygon
+    kFreehand
+}
+
+abstract class Shape {
+    + draw(config : Config) : void {abstract}
+    + update(x, y : float) : void {abstract}
+    + add_control_point(x, y : float) : void
+    + finish_draw() : void
+}
+
+class ShapeConfig {
+    + bias : float[2]
+    + line_color : unsigned char[4]
+    + line_thickness : float
+}
+
+class Line {
+    - start_point_x_ : float
+    - start_point_y_ : float
+    - end_point_x_ : float
+    - end_point_y_ : float
+    __
+    + Line()
+    + Line(x1, y1, x2, y2 : float)
+    + draw(config : Config) : void
+    + update(x, y : float) : void
+}
+
+class Rect {
+    - start_point_x_ : float
+    - start_point_y_ : float
+    - end_point_x_ : float
+    - end_point_y_ : float
+    __
+    + Rect()
+    + Rect(x1, y1, x2, y2 : float)
+    + draw(config : Config) : void
+    + update(x, y : float) : void
+}
+
+class Ellipse {
+    - start_point_x_ : float
+    - start_point_y_ : float
+    - end_point_x_ : float
+    - end_point_y_ : float
+    __
+    + Ellipse()
+    + Ellipse(x1, y1, x2, y2 : float)
+    + draw(config : Config) : void
+    + update(x, y : float) : void
+}
+
+class Polygon {
+    - point_list_ : vector<ImVec2>
+    - temp_end_point_ : ImVec2
+    - im_flag : ImDrawFlags
+    - is_finished : bool
+    __
+    + Polygon()
+    + Polygon(x1, y1, x2, y2 : float)
+    + draw(config : Config) : void
+    + update(x, y : float) : void
+    + add_control_point(x, y : float) : void
+    + finish_draw() : void
+}
+
+class Freehand {
+    - point_list_ : vector<ImVec2>
+    __
+    + Freehand()
+    + Freehand(x, y : float)
+    + draw(config : Config) : void
+    + update(x, y : float) : void
+}
+
+Window <|-- MiniDraw
+Widget <|-- Canvas
+Shape <|-- Line
+Shape <|-- Rect
+Shape <|-- Ellipse
+Shape <|-- Polygon
+Shape <|-- Freehand
+
+MiniDraw *-- Canvas
+Canvas *-- Shape
+Canvas --> ShapeType
+Shape ..> ShapeConfig
+
+note right of MiniDraw
+  主窗口类
+  继承自 Window
+  包含画布组件
+end note
+
+note right of Canvas
+  画布类
+  负责图形绘制和
+  鼠标交互处理
+end note
+
+note bottom of Shape
+  抽象图形基类
+  定义所有图形的通用接口
+end note
+
+@enduml

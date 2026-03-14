@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include "imgui.h"
+
 namespace USTC_CG
 {
 MiniDraw::MiniDraw(const std::string& window_name) : Window(window_name)
@@ -27,7 +29,7 @@ void MiniDraw::draw_canvas()
     if (ImGui::Begin(
             "Canvas",
             &flag_show_canvas_view_,
-            ImGuiWindowFlags_NoDecoration|ImGuiWindowFlags_NoBackground))
+            ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoBackground))
     {
         // Buttons for shape types
         if (ImGui::Button("Line"))
@@ -46,7 +48,37 @@ void MiniDraw::draw_canvas()
         //    - Ellipse
         //    - Polygon
         //    - Freehand(optional)
-        
+        ImGui::SameLine();
+        if (ImGui::Button("Ellipse"))
+        {
+            std::cout << "Set shape to Ellipse" << std::endl;
+            p_canvas_->set_ellipse();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Polygon"))
+        {
+            std::cout << "Set shape to Polygon" << std::endl;
+            p_canvas_->set_polygon();
+        }
+        ImGui::SameLine();
+        if (ImGui::Button("Freehand"))
+        {
+            std::cout << "Set shape to Freehand" << std::endl;
+            p_canvas_->set_freehand();
+        }
+
+        // 画笔颜色及粗细选择组件
+        ImGui::ColorEdit4(
+            "Line Color", (float*)&p_canvas_->current_line_color_);
+
+        ImGui::SameLine();
+        ImGui::SetNextItemWidth(200.0f);  // 设置滑块宽度
+        ImGui::SliderFloat(
+            "Thickness", &p_canvas_->current_line_thickness_, 1.0f, 10.0f);
+
+        ImGui::ColorEdit4(
+            "Fill Color", (float*)&p_canvas_->current_fill_color_);
+
         // Canvas component
         ImGui::Text("Press left mouse to add shapes.");
         // Set the canvas to fill the rest of the window

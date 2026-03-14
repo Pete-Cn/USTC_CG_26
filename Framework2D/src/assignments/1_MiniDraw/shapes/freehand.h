@@ -1,32 +1,31 @@
 #pragma once
 
+#include <vector>
+
+#define IMGUI_DEFINE_MATH_OPERATORS
+
+#include "imgui.h"
 #include "shape.h"
 
 namespace USTC_CG
 {
-class Line : public Shape
+class Freehand : public Shape
 {
    public:
-    Line() = default;
+    Freehand() = default;
 
     // Constructor to initialize a line with start and end coordinates
-    Line(
+    Freehand(
         float start_point_x,
         float start_point_y,
-        float end_point_x,
-        float end_point_y,
         const unsigned char line_color[4],
         float thickness)
-        : start_point_x_(start_point_x),
-          start_point_y_(start_point_y),
-          end_point_x_(end_point_x),
-          end_point_y_(end_point_y)
     {
+        point_list_.push_back(ImVec2(start_point_x, start_point_y));
         set_color(line_color_, line_color);
         line_thickness_ = thickness;
     }
-
-    virtual ~Line() = default;
+    virtual ~Freehand() = default;
 
     // Overrides draw function to implement line-specific drawing logic
     void draw(const Config& config) const override;
@@ -36,6 +35,6 @@ class Line : public Shape
     void update(float x, float y) override;
 
    private:
-    float start_point_x_, start_point_y_, end_point_x_, end_point_y_;
+    std::vector<ImVec2> point_list_;
 };
 }  // namespace USTC_CG

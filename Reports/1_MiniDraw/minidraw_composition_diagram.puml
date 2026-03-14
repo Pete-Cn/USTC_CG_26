@@ -1,0 +1,47 @@
+@startuml MiniDraw_Composition_Diagram
+
+skinparam classAttributeIconSize 0
+skinparam backgroundColor #FFFFFF
+skinparam class {
+    BackgroundColor #E8F5E9
+    ArrowColor #2E7D32
+    BorderColor #2E7D32
+}
+
+class MiniDraw {
+    - p_canvas_ : shared_ptr<Canvas>
+}
+
+class Canvas {
+    - current_shape_ : shared_ptr<Shape>
+    - shape_list_ : vector<shared_ptr<Shape>>
+}
+
+class Shape
+
+class Line
+class Rect
+class Ellipse
+class Polygon
+class Freehand
+
+MiniDraw *-- Canvas : 包含
+Canvas *-- Shape : 包含
+
+note right of MiniDraw
+  主窗口类
+  包含一个画布
+end note
+
+note right of Canvas
+  画布类
+  包含图形列表
+end note
+
+note bottom of Shape
+  图形基类
+  具体图形包括 Line, Rect,
+  Ellipse, Polygon, Freehand
+end note
+
+@enduml

@@ -5,8 +5,8 @@
 #include <memory>
 #include <vector>
 
-#include "shapes/shape.h"
 #include "common/widget.h"
+#include "shapes/shape.h"
 
 namespace USTC_CG
 {
@@ -29,6 +29,7 @@ class Canvas : public Widget
         kRect = 2,
         kEllipse = 3,
         kPolygon = 4,
+        kFreehand = 5,
     };
 
     // Shape type setters.
@@ -36,6 +37,9 @@ class Canvas : public Widget
     void set_line();
     void set_rect();
     // HW1_TODO: more shape types.
+    void set_ellipse();
+    void set_polygon();
+    void set_freehand();
 
     // Clears all shapes from the canvas.
     void clear_shape_list();
@@ -46,6 +50,12 @@ class Canvas : public Widget
     // Controls the visibility of the canvas background.
     void show_background(bool flag);
 
+    // 当前选择的画笔颜色和粗细
+    ImVec4 current_line_color_ = ImVec4(1.0f, 0.0f, 0.0f, 1.0f);
+    float current_line_thickness_ = 2.0f;
+
+    // 当前选择的填充颜色
+    ImVec4 current_fill_color_ = ImVec4(0.0f, 0.0f, 0.0f, 0.0f);
    private:
     // Drawing functions.
     void draw_background();
@@ -53,6 +63,7 @@ class Canvas : public Widget
 
     // Event handlers for mouse interactions.
     void mouse_click_event();
+    void mouse_right_click_event();
     void mouse_move_event();
     void mouse_release_event();
 

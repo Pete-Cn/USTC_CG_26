@@ -1,5 +1,6 @@
 #pragma once
 
+#include <imgui.h>
 namespace USTC_CG
 {
 class Shape
@@ -47,5 +48,18 @@ class Shape
      * @param x, y Control point to be added. e.g. vertex of a polygon.
      */
     virtual void add_control_point(float x, float y) {}
+
+    virtual void finish_draw() {}
+
+    void set_color(ImU32 &color_, const unsigned char color[4]) {
+        color_ = IM_COL32(color[0], color[1], color[2], color[3]);
+    }
+   protected:
+   // shape的颜色和粗细，默认红色，2.0f
+    ImU32 line_color_ = IM_COL32(255, 0, 0, 255);
+    float line_thickness_ = 2.0f; 
+    
+    // 填充颜色设置，默认的alpha为0，即不填充任何颜色
+    ImU32 fill_color_ = IM_COL32(0, 0, 0, 0);
 };
 }  // namespace USTC_CG
