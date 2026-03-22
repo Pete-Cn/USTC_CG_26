@@ -8,6 +8,9 @@ file(GLOB source
 add_executable(${PROJECT_NAME} ${source})
 target_include_directories(${PROJECT_NAME} PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
+target_include_directories(${PROJECT_NAME}
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/third_party/Eigen
+)
 # HW2_TODO(optional): Add Dlib support to the project
 find_package(dlib QUIET)
 if(dlib_FOUND)

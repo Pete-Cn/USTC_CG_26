@@ -10,6 +10,11 @@
 // warp(...) function to perform the actual warping.
 #pragma once
 
+#include <utility>
+#include <vector>
+
+#include "type_define.h"
+
 namespace USTC_CG
 {
 class Warper
@@ -18,7 +23,14 @@ class Warper
     virtual ~Warper() = default;
 
     // HW2_TODO: A virtual function warp(...)
+    virtual std::pair<int, int> warp(const int& x, const int& y) = 0;
     
+    virtual bool get_transform() = 0;
     // HW2_TODO: other functions or variables if you need
+   protected:
+    std::vector<V2D> m_P;
+    std::vector<V2D> m_Q;
+    int n_points_ = 0;
+    bool is_valid_ = true;
 };
 }  // namespace USTC_CG

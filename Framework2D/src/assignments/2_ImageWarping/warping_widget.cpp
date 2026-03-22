@@ -3,11 +3,16 @@
 #include <cmath>
 #include <iostream>
 
+#include "warper/IDW_warper.h"
+#include "warper/RBF_warper.h"
+
 namespace USTC_CG
 {
 using uchar = unsigned char;
 
-WarpingWidget::WarpingWidget(const std::string& label, const std::string& filename)
+WarpingWidget::WarpingWidget(
+    const std::string& label,
+    const std::string& filename)
     : ImageWidget(label, filename)
 {
     if (data_)
@@ -111,7 +116,7 @@ void WarpingWidget::warping()
     // HW2_TODO: You should implement your own warping function that interpolate
     // the selected points.
     // Please design a class for such warping operations, utilizing the
-    // encapsulation, inheritance, and polymorphism features of C++. 
+    // encapsulation, inheritance, and polymorphism features of C++.
 
     // Create a new image to store the result
     Image warped_image(*data_);
@@ -156,16 +161,50 @@ void WarpingWidget::warping()
         }
         case kIDW:
         {
-            // HW2_TODO: Implement the IDW warping
-            // use selected points start_points_, end_points_ to construct the map
-            std::cout << "IDW not implemented." << std::endl;
+            IDWWarper IDWWarper_inv(end_points_, start_points_);
+            if (!IDWWarper_inv.get_transform())
+            {
+                std::cout << "IDW not implemented. Image is not warped."
+                          << std::endl;
+            }
+            for (int y = 0; y < data_->height(); ++y)
+            {
+                for (int x = 0; x < data_->width(); ++x)
+                {
+                    auto [src_x, src_y] = IDWWarper_inv.warp(x, y);
+                    if (src_x >= 0 && src_x < data_->width() && src_y >= 0 &&
+                        src_y < data_->height())
+                    {
+                        std::vector<unsigned char> pixel =
+                            data_->get_pixel(src_x, src_y);
+                        warped_image.set_pixel(x, y, pixel);
+                    }
+                }
+            }
             break;
         }
         case kRBF:
         {
-            // HW2_TODO: Implement the RBF warping
-            // use selected points start_points_, end_points_ to construct the map
-            std::cout << "RBF not implemented." << std::endl;
+            RBFWarper RBFWarper_inv(end_points_, start_points_);
+            if (!RBFWarper_inv.get_transform())
+            {
+                std::cout << "RBF not implemented. Image is not warped."
+                          << std::endl;
+            }
+            for (int y = 0; y < data_->height(); ++y)
+            {
+                for (int x = 0; x < data_->width(); ++x)
+                {
+                    auto [src_x, src_y] = RBFWarper_inv.warp(x, y);
+                    if (src_x >= 0 && src_x < data_->width() && src_y >= 0 &&
+                        src_y < data_->height())
+                    {
+                        std::vector<unsigned char> pixel =
+                            data_->get_pixel(src_x, src_y);
+                        warped_image.set_pixel(x, y, pixel);
+                    }
+                }
+            }
             break;
         }
         default: break;
