@@ -2,6 +2,7 @@
 
 #include "source_image_widget.h"
 #include "common/image_widget.h"
+#include "seamless_clone.h"
 
 namespace USTC_CG
 {
@@ -55,5 +56,8 @@ class TargetImageWidget : public ImageWidget
     ImVec2 mouse_position_;
     bool edit_status_ = false;
     bool flag_realtime_updating = false;
+
+    std::shared_ptr<SeamlessClone> seamless_clone_;
+    int cached_W_ = -1, cached_H_ = -1;
 };
 }  // namespace USTC_CG

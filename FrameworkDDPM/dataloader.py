@@ -4,6 +4,41 @@ import numpy as np
 import torch
 import torchvision
 import matplotlib.pyplot as plt
+import tkinter as tk
+from tkinter import filedialog
+import os
+
+def select_dataset_dir(root: tk.Tk, split: str) -> str:
+    """
+    弹出文件夹选择对话框，让用户选择指定数据集分割的路径。
+    若用户取消或所选路径无效，则循环提示重新选择。
+
+    Args:
+        root:  已初始化并隐藏的 tkinter 根窗口。
+        split: 数据集类型名称，如 'train' 或 'test'。
+
+    Returns:
+        用户选择的有效目录路径字符串。
+    """
+    while True:
+        print(f"正在等待选择 {split} 数据集路径...")
+
+        selected = filedialog.askdirectory(
+            title=f"请选择 {split} 目录（应包含类别子文件夹，如 cls0）",
+            parent=root,
+        )
+
+        if not selected:
+            print(f"  ⚠ 未选择路径，请重新选择 {split} 目录。")
+            continue
+
+        subdirs = [d for d in os.listdir(selected) if os.path.isdir(os.path.join(selected, d))]
+        if len(subdirs) == 0:
+            print(f"  ⚠ 所选目录不包含任何子文件夹，路径无效，请重新选择。")
+            continue
+
+        print(f"{split.capitalize()} 数据集已选择: {selected}")
+        return selected
 
 
 def load_transformed_dataset(img_size=256, batch_size=128) -> DataLoader:
@@ -15,12 +50,19 @@ def load_transformed_dataset(img_size=256, batch_size=128) -> DataLoader:
     ]
     data_transform = transforms.Compose(data_transforms)
 
-    # TODO: 你可以更改这两个地方的路径，以实现对其他数据集的加载
-    # 当然，你也可以添加更多的参数，以支持不同数据集之间的修改
-    train = torchvision.datasets.ImageFolder(root="./datasets-1/train", transform=data_transform)
+    root = tk.Tk()
+    root.withdraw()
+    root.attributes('-topmost', True)
 
-    test = torchvision.datasets.ImageFolder(root="./datasets-1/test", transform=data_transform)
+    try:
+        train_dir = select_dataset_dir(root, "train")
+        test_dir  = select_dataset_dir(root, "test")
+    finally:
+        root.destroy()  # 无论是否抛出异常，都确保窗口被销毁
 
+
+    train = torchvision.datasets.ImageFolder(root=train_dir, transform=data_transform)
+    test  = torchvision.datasets.ImageFolder(root=test_dir,  transform=data_transform)
     dataset = torch.utils.data.ConcatDataset([train, test])
 
     return DataLoader(dataset, batch_size=batch_size, shuffle=True, drop_last=True)

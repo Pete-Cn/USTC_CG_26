@@ -1,4 +1,4 @@
-from forward_noising import forward_diffusion_sample
+from forward_noising import forward_diffusion_sample, T
 from unet import SimpleUnet
 from dataloader import load_transformed_dataset
 import torch.nn.functional as F
@@ -10,19 +10,18 @@ import cv2 as cv
 
 logging.basicConfig(level=logging.INFO)
 
-# TODO: 完成训练过程的Loss计算
-# 加噪过程需要补充forward_diffusion_sample中内容，并调用
 def get_loss(model, x_0, t, device):
+    # 得到添加噪声的图片、时间步 t 和噪声
     x_noisy, noise = forward_diffusion_sample(x_0, t, device)
-    
-    # DO STH...
-    
-    return None
+    # 输入模型进行预测
+    noise_pred = model(x_noisy, t)
+    # 计算 loss
+    return F.mse_loss(noise, noise_pred)
 
 
 if __name__ == "__main__":
     model = SimpleUnet()
-    T = 300
+    # T 从 forward_noising 导入，而不是输入
     BATCH_SIZE = 1
     epochs = 5000
 
@@ -38,8 +37,11 @@ if __name__ == "__main__":
         for batch_idx, (batch, _) in enumerate(dataloader):
             optimizer.zero_grad()
 
-            # TODO: 完成对时间步的采样、Loss计算以及反向传播
-            loss = 0
+            # 随机采样时间步
+            t = torch.randint(0, T, (batch.shape[0],), device=device).long()
+            
+            loss = get_loss(model, batch, t, device)
+            loss.backward()
             optimizer.step()
 
             if batch_idx % 50 == 0:

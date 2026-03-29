@@ -1,5 +1,6 @@
 #include "target_image_widget.h"
 
+#include <algorithm>
 #include <cmath>
 
 namespace USTC_CG
@@ -95,23 +96,36 @@ void TargetImageWidget::clone()
         {
             restore();
 
+            int src_x = static_cast<int>(source_image_->get_position().x);
+            int src_y = static_cast<int>(source_image_->get_position().y);
+
+            int W = 0, H = 0;
+            for (int x = 0; x < mask->width(); ++x)
+                for (int y = 0; y < mask->height(); ++y)
+                    if (mask->get_pixel(x, y)[0] > 0)
+                    {
+                        W = std::max(W, x - src_x + 1);
+                        H = std::max(H, y - src_y + 1);
+                    }
+
+            if (W <= 0 || H <= 0)
+                break;
+
+            int offset_x = static_cast<int>(mouse_position_.x) - W / 2;
+            int offset_y = static_cast<int>(mouse_position_.y) - H / 2;
+
             for (int x = 0; x < mask->width(); ++x)
             {
                 for (int y = 0; y < mask->height(); ++y)
                 {
-                    int tar_x =
-                        static_cast<int>(mouse_position_.x) + x -
-                        static_cast<int>(source_image_->get_position().x);
-                    int tar_y =
-                        static_cast<int>(mouse_position_.y) + y -
-                        static_cast<int>(source_image_->get_position().y);
-                    if (0 <= tar_x && tar_x < image_width_ && 0 <= tar_y &&
-                        tar_y < image_height_ && mask->get_pixel(x, y)[0] > 0)
+                    if (mask->get_pixel(x, y)[0] > 0)
                     {
-                        data_->set_pixel(
-                            tar_x,
-                            tar_y,
-                            source_image_->get_data()->get_pixel(x, y));
+                        int tar_x = offset_x + x - src_x;
+                        int tar_y = offset_y + y - src_y;
+                        if (0 <= tar_x && tar_x < image_width_ && 0 <= tar_y && tar_y < image_height_)
+                        {
+                            data_->set_pixel(tar_x, tar_y, source_image_->get_data()->get_pixel(x, y));
+                        }
                     }
                 }
             }
@@ -119,13 +133,47 @@ void TargetImageWidget::clone()
         }
         case USTC_CG::TargetImageWidget::kSeamless:
         {
-            // HW3_TODO: You should implement your own seamless cloning. For
-            // each pixel in the selected region, calculate the final RGB color
-            // by solving Poisson Equations.
             restore();
 
+            auto src_pos = source_image_->get_position();
+            int src_x = static_cast<int>(src_pos.x);
+            int src_y = static_cast<int>(src_pos.y);
+
+            int W = 0, H = 0;
+            for (int x = 0; x < mask->width(); ++x)
+                for (int y = 0; y < mask->height(); ++y)
+                    if (mask->get_pixel(x, y)[0] > 0)
+                    {
+                        W = std::max(W, x - src_x + 1);
+                        H = std::max(H, y - src_y + 1);
+                    }
+
+            if (W <= 0 || H <= 0)
+                break;
+
+            // offset = top-left of the region in the target image (mouse_position is center)
+            int offset_x = static_cast<int>(mouse_position_.x) - W / 2;
+            int offset_y = static_cast<int>(mouse_position_.y) - H / 2;
+
+            if (!seamless_clone_ || W != cached_W_ || H != cached_H_)
+            {
+                seamless_clone_ = std::make_shared<SeamlessClone>(
+                    source_image_->get_data(), back_up_,
+                    src_x, src_y, offset_x, offset_y, W, H);
+                seamless_clone_->precompute();
+                cached_W_ = W;
+                cached_H_ = H;
+            }
+            else
+            {
+                seamless_clone_->set_offset(offset_x, offset_y);
+            }
+
+            auto result = seamless_clone_->solve();
+            *data_ = *result;
             break;
         }
+
         default: break;
     }
 
