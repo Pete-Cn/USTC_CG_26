@@ -35,7 +35,12 @@ posterior_variance = betas * (1.0 - alphas_cumprod_prev) / (1.0 - alphas_cumprod
 
 
 
-# TODO: 你需要完善这个函数，以实现对输入图像的加噪过程
 def forward_diffusion_sample(x_0, time_step, device="cpu"):
     noise = torch.randn_like(x_0)    
-    return x_0, noise
+    # 得到当前时间步的 sqrt(alpha~) 和 sqrt(1 - alpha~)
+    sqrt_alphas_cumprod_t = get_index_from_list(sqrt_alphas_cumprod, time_step, x_0.shape)
+    sqrt_one_minus_alphas_cumprod_t = get_index_from_list(sqrt_one_minus_alphas_cumprod, time_step, x_0.shape)
+    
+    # 跟据公式添加噪声
+    x_t = sqrt_alphas_cumprod_t.to(device) * x_0.to(device) + sqrt_one_minus_alphas_cumprod_t.to(device) * noise.to(device)
+    return x_t, noise.to(device)
