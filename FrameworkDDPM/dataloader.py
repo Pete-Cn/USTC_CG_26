@@ -58,7 +58,7 @@ def load_transformed_dataset(img_size=256, batch_size=128) -> DataLoader:
         train_dir = select_dataset_dir(root, "train")
         test_dir  = select_dataset_dir(root, "test")
     finally:
-        root.destroy()  # 无论是否抛出异常，都确保窗口被销毁
+        root.destroy()
 
 
     train = torchvision.datasets.ImageFolder(root=train_dir, transform=data_transform)

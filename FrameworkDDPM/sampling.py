@@ -36,29 +36,33 @@ def sample_timestep(model, x, t):
 
 @torch.no_grad()
 def sample_plot_image(model, device, img_size, T):
-    # 纯高斯噪声 x_T 开始
     img = torch.randn((1, 3, img_size, img_size), device=device)
-    # 展示 num_images 张过程图
-    num_images = 10
+    num_images = 16
     step_size = T // num_images
 
-    plt.figure(figsize=(15, 3))
+    plt.figure(figsize=(18, 18))
     plot_idx = 1
 
     for i in range(0, T)[::-1]:
-        # 用时间步 t 的参数来去噪，并限制值的范围
         t = torch.full((1,), i, device=device, dtype=torch.long)
         img = sample_timestep(model, img, t)
         img = torch.clamp(img, -1.0, 1.0)
 
         if i % step_size == 0:
-            plt.subplot(1, num_images, plot_idx)
+            plt.subplot(4, 4, plot_idx)
             show_tensor_image(img.detach().cpu())
+            plt.axis('off') 
             plot_idx += 1
 
-    plt.savefig("generated_image.png", dpi=150, bbox_inches="tight")
+    plt.savefig("generated_image.png", dpi=1200, bbox_inches="tight")
     plt.show()
     print("图片已保存到 generated_image.png")
+
+    final_img = img.squeeze(0).detach().cpu()       # (3, H, W)
+    final_img = (final_img + 1) / 2                 # [-1, 1] → [0, 1]
+    final_img = final_img.clamp(0, 1)
+    save_image(final_img, "final_generated_image.png")
+    print("最终图片已保存到 final_generated_image.png")
 
 
 def test_image_generation():
@@ -71,7 +75,8 @@ def test_image_generation():
     import glob
     import os
 
-    model_files = glob.glob("./ddpm_*.pth")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_files = glob.glob(os.path.join(script_dir, "ddpm_*.pth"))
     if not model_files:
         print("错误：未找到训练好的模型文件 (ddpm_*.pth)，请先运行 training_model.py 进行训练。")
         return
@@ -129,7 +134,8 @@ def test_image_inpainting():
     import glob
     import os
 
-    model_files = glob.glob("./ddpm_*.pth")
+    script_dir = os.path.dirname(os.path.abspath(__file__))
+    model_files = glob.glob(os.path.join(script_dir, "ddpm_*.pth"))
     if not model_files:
         print("错误：未找到训练好的模型文件 (ddpm_*.pth)，请先运行 training_model.py 进行训练。")
         return
